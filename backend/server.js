@@ -37,6 +37,6 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Lingua AI backend running at http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Lingua AI backend running on 0.0.0.0:${port}`);
 });
