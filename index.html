@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lingua AI — English with AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-dot"></span> Lingua <b>AI</b></div>
+      <nav>
+        <button class="nav-item active" data-page="dashboard">⌂ <span>Dashboard</span></button>
+        <button class="nav-item" data-page="practice">✦ <span>Practice</span></button>
+        <button class="nav-item" data-page="progress">◒ <span>Progress</span></button>
+        <button class="nav-item" data-page="vocabulary">▣ <span>Vocabulary</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item">⚙ <span>Settings</span></button>
+        <div class="profile-mini"><div class="avatar">D</div><div><strong>Dima</strong><small>English learner</small></div></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand">Lingua <b>AI</b></div>
+        <div class="streak">🔥 7 day streak</div>
+      </header>
+
+      <section id="dashboard" class="page active-page">
+        <div class="hero">
+          <div>
+            <p class="eyebrow">YOUR AI ENGLISH TUTOR</p>
+            <h1>Keep improving,<br><span>Dima.</span></h1>
+            <p class="hero-copy">Practice English naturally with an AI tutor that listens, responds and gives you useful feedback.</p>
+            <button class="primary" onclick="showPage('practice')">Start a conversation <span>→</span></button>
+          </div>
+          <div class="orb-wrap"><div class="orb"><span>✦</span></div></div>
+        </div>
+
+        <div class="section-title"><h2>Your progress</h2><button onclick="showPage('progress')">View all →</button></div>
+        <div class="stats">
+          <div class="stat-card"><div class="stat-icon">A</div><span>Current level</span><strong>B1</strong><small>Intermediate</small></div>
+          <div class="stat-card"><div class="stat-icon">✓</div><span>Grammar</span><strong>78%</strong><div class="bar"><i style="width:78%"></i></div></div>
+          <div class="stat-card"><div class="stat-icon">◉</div><span>Speaking</span><strong>64%</strong><div class="bar"><i style="width:64%"></i></div></div>
+          <div class="stat-card"><div class="stat-icon">✎</div><span>Vocabulary</span><strong>71%</strong><div class="bar"><i style="width:71%"></i></div></div>
+        </div>
+
+        <div class="section-title"><h2>Recommended practice</h2></div>
+        <div class="practice-grid">
+          <div class="practice-card" onclick="startScenario('Casual conversation')"><div class="practice-emoji">☕</div><h3>Casual conversation</h3><p>Talk about your day, hobbies and life.</p><span>10 min →</span></div>
+          <div class="practice-card" onclick="startScenario('Job interview')"><div class="practice-emoji">💼</div><h3>Job interview</h3><p>Practice common interview questions.</p><span>15 min →</span></div>
+          <div class="practice-card" onclick="startScenario('Travel')"><div class="practice-emoji">✈️</div><h3>Travel English</h3><p>Hotels, airports, restaurants and more.</p><span>10 min →</span></div>
+        </div>
+      </section>
+
+      <section id="practice" class="page">
+        <div class="chat-head"><div><p class="eyebrow">AI CONVERSATION</p><h1 id="scenario-title">Casual conversation</h1></div><button class="ghost" onclick="showPage('dashboard')">← Dashboard</button></div>
+        <div class="chat">
+          <div class="message ai"><div class="bot-avatar">✦</div><div><small>Lingua AI</small><p id="ai-message">Hey! 👋 How was your day? Tell me something interesting that happened today.</p></div></div>
+          <div id="messages"></div>
+        </div>
+        <div class="composer">
+          <textarea id="input" placeholder="Type your answer in English..." rows="2"></textarea>
+          <div class="composer-actions"><button class="mic" id="micBtn" title="Voice input">🎙</button><button class="send" id="sendBtn">Send →</button></div>
+        </div>
+        <div class="feedback" id="feedback" hidden></div>
+        <p class="voice-note" id="voiceStatus">Voice mode uses your browser's speech recognition when available.</p>
+      </section>
+
+      <section id="progress" class="page">
+        <div class="chat-head"><div><p class="eyebrow">YOUR LEARNING</p><h1>Progress</h1></div></div>
+        <div class="progress-panel">
+          <div class="level-circle">B1<small>level</small></div>
+          <div><h2>You're building momentum.</h2><p>Keep practicing conversations to strengthen grammar, vocabulary and speaking confidence.</p><div class="bar big"><i style="width:72%"></i></div><small>72% toward B2</small></div>
+        </div>
+        <div class="stats progress-stats">
+          <div class="stat-card"><span>Conversations</span><strong id="conversationCount">12</strong><small>This month</small></div>
+          <div class="stat-card"><span>Words learned</span><strong>248</strong><small>+31 this week</small></div>
+          <div class="stat-card"><span>Practice time</span><strong>4.8h</strong><small>This month</small></div>
+        </div>
+      </section>
+
+      <section id="vocabulary" class="page">
+        <div class="chat-head"><div><p class="eyebrow">WORDS TO REMEMBER</p><h1>Vocabulary</h1></div></div>
+        <div class="word-list">
+          <div><span>momentum</span><small>the force that keeps something developing</small><b>B2</b></div>
+          <div><span>confident</span><small>feeling sure about your abilities</small><b>B1</b></div>
+          <div><span>improve</span><small>to become better</small><b>A2</b></div>
+          <div><span>conversation</span><small>an informal talk between people</small><b>A2</b></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
