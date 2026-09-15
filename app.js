@@ -303,3 +303,101 @@ loginBtn.addEventListener("click", async () => {
     authScreen.style.display = "none";
     }
 });
+// ================================
+// RESTORE USER SESSION + NAME
+// ================================
+
+async function loadUser() {
+  const { data, error } = await supabaseClient.auth.getUser();
+
+  if (error || !data.user) {
+    return;
+  }
+
+  const user = data.user;
+  const name = user.user_metadata?.name || "Learner";
+
+  // Меняем имя в главном заголовке
+  const nameElement = document.querySelector(".hero h1 span");
+
+  if (nameElement) {
+    nameElement.textContent = name + ".";
+  }
+
+  // Меняем имя в профиле
+  const profileName = document.querySelector(".profile-mini strong");
+
+  if (profileName) {
+    profileName.textContent = name;
+  }
+
+  // Меняем букву аватара
+  const avatar = document.querySelector(".profile-mini .avatar");
+
+  if (avatar) {
+    avatar.textContent = name.charAt(0).toUpperCase();
+  }
+
+  // Скрываем регистрацию, если пользователь уже вошёл
+  if (authScreen) {
+    authScreen.style.display = "none";
+  }
+}
+// ================================
+
+// RESTORE USER SESSION + NAME
+
+// ================================
+
+async function loadUser() {
+
+  const { data, error } = await supabaseClient.auth.getUser();
+
+  if (error || !data.user) {
+
+    return;
+
+  }
+
+  const user = data.user;
+
+  const name = user.user_metadata?.name || "Learner";
+
+  // Меняем имя в главном заголовке
+
+  const nameElement = document.querySelector(".hero h1 span");
+
+  if (nameElement) {
+
+    nameElement.textContent = name + ".";
+
+  }
+
+  // Меняем имя в профиле
+
+  const profileName = document.querySelector(".profile-mini strong");
+
+  if (profileName) {
+
+    profileName.textContent = name;
+
+  }
+
+  // Меняем букву аватара
+
+  const avatar = document.querySelector(".profile-mini .avatar");
+
+  if (avatar) {
+
+    avatar.textContent = name.charAt(0).toUpperCase();
+
+  }
+
+  // Скрываем регистрацию, если пользователь уже вошёл
+
+  if (authScreen) {
+
+    authScreen.style.display = "none";
+  }
+}
+loadUser();
