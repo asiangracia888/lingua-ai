@@ -1,235 +1,42 @@
-// ===============================
-// LINGUA AI — MAIN APP
-// ===============================
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+const OpenAI = require("openai");
+require("dotenv").config();
 
-// ---------- Navigation ----------
+const app = express();
+const port = 3000;
 
-const pages = document.querySelectorAll(".page");
-const navItems = document.querySelectorAll(".nav-item[data-page]");
-
-navItems.forEach((item) => {
-  item.addEventListener("click", () => {
-    const pageName = item.dataset.page;
-
-    pages.forEach((page) => {
-      page.classList.toggle("active-page", page.id === pageName);
-    });
-
-    navItems.forEach((nav) => {
-      nav.classList.toggle("active", nav === item);
-    });
-  });
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
+app.use(express.json());
+app.use(cors());
+app.use(express.static(path.join(__dirname, "..")));
 
-// ---------- Chat ----------
+app.post("/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
 
-const messages = document.getElementById("messages");
-const input = document.getElementById("input");
-const sendBtn = document.getElementById("sendBtn");
+    const response = await client.responses.create({
+      model: "gpt-5.6-luna",
+      instructions:
+        "You are Lingua AI, a friendly English tutor. Reply naturally in English. Correct important grammar mistakes and briefly explain them.",
+      input: message,
+    });
 
-if (sendBtn) {
-  sendBtn.addEventListener("click", sendMessage);
-}
-
-if (input) {
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-}
-
-async function sendMessage() {
-  const text = input.value.trim();
-
-  if (!text) return;
-
-  // User message
-  const userRow = document.createElement("div");
-  userRow.className = "message user-msg";
-
-  const userContent = document.createElement("div");
-
-  const userName = document.createElement("small");
-  userName.textContent = "You";
-
-  const userText = document.createElement("p");
-  userText.textContent = text;
-
-  userContent.appendChild(userName);
-  userContent.appendChild(userText);
-  userRow.appendChild(userContent);
-
-  messages.appendChild(userRow);
-
-  input.value = "";
-
-  // AI message
-  const aiRow = document.createElement("div");
-  aiRow.className = "message ai";
-
-  const avatar = document.createElement("div");
-  avatar.className = "bot-avatar";
-  avatar.textContent = "✦";
-
-  const aiContent = document.createElement("div");
-
-  const aiName = document.createElement("small");
-  aiName.textContent = "Lingua AI";
-
-  const aiText = document.createElement("p");
-  aiText.textContent = "Thinking...";
-
-  aiContent.appendChild(aiName);
-  aiContent.appendChild(aiText);
-
-  aiRow.appendChild(avatar);
-  aiRow.appendChild(aiContent);
-
-  messages.appendChild(aiRow);
-
-  messages.parentElement.scrollTop =
-    messages.parentElement.scrollHeight;
-
-  try {
-    const response = await fetch("https://lingua-ai-2txm.onrender.com/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: text
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "AI request failed");
-    }
-
-    aiText.textContent = data.reply;
-
-  } catch (error) {
-    console.error(error);
-
-    aiText.textContent =
-      "Sorry, I couldn't connect to Lingua AI.";
-  }
-
-  messages.parentElement.scrollTop =
-    messages.parentElement.scrollHeight;
-}
-
-
-// ---------- Voice Input ----------
-
-const SpeechRecognition =
-  window.SpeechRecognition ||
-  window.webkitSpeechRecognition;
-
-const mic = document.getElementById("micBtn");
-const voiceStatus = document.getElementById("voiceStatus");
-
-if (SpeechRecognition && mic) {
-  const recognition = new SpeechRecognition();
-
-  recognition.lang = "en-US";
-  recognition.interimResults = false;
-  recognition.continuous = false;
-
-  mic.addEventListener("click", () => {
-    try {
-      recognition.start();
-
-      mic.classList.add("listening");
-
-      if (voiceStatus) {
-        voiceStatus.textContent =
-          "Listening… speak in English.";
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  });
-
-  recognition.onresult = (event) => {
-    const transcript =
-      event.results[0][0].transcript;
-
-    input.value = transcript;
-
-    if (voiceStatus) {
-      voiceStatus.textContent =
-        "Got it — press Send.";
-    }
-  };
-
-  recognition.onend = () => {
-    mic.classList.remove("listening");
-
-    if (
-      voiceStatus &&
-      voiceStatus.textContent.includes("Listening")
-    ) {
-      voiceStatus.textContent =
-        "Voice input stopped.";
-    }
-  };
-
-} else if (mic) {
-
-  mic.addEventListener("click", () => {
-    alert(
-      "Voice input is not supported by this browser."
-    );
-  });
-}
-// ---------- Page Navigation ----------
-
-function showPage(pageName) {
-  pages.forEach((page) => {
-    page.classList.toggle("active-page", page.id === pageName);
-  });
-
-  navItems.forEach((nav) => {
-    nav.classList.toggle(
-      "active",
-      nav.dataset.page === pageName
-    );
-  });
-}
-
-
-// ---------- Practice Scenarios ----------
-
-function startScenario(scenario) {
-  showPage("practice");
-
-  const scenarioTitle = document.getElementById("scenario-title");
-
-  if (scenarioTitle) {
-    scenarioTitle.textContent = scenario;
+    res.json({
+      reply: response.output_text,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Something went wrong with the AI request.",
+    });
   }
+});
 
-  const aiMessage = document.getElementById("ai-message");
-
-  if (aiMessage) {
-    const messages = {
-      "Casual conversation":
-        "Hey! 👋 How was your day? Tell me something interesting that happened today.",
-
-      "Job interview":
-        "Welcome! 💼 Let's practice a job interview. Tell me a little about yourself.",
-
-      "Travel":
-        "Let's practice travel English! ✈️ Imagine you're checking into a hotel. What would you say?"
-    };
-
-    aiMessage.textContent =
-      messages[scenario] ||
-      "Let's practice English together! Tell me something about yourself.";
-  }
-}
+app.listen(port, () => {
+  console.log(`Lingua AI backend running at http://localhost:${port}`);
+});
