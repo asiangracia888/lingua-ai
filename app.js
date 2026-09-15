@@ -197,3 +197,42 @@ if (micBtn && SpeechRecognition) {
 
 // Start on Dashboard
 showPage("dashboard");
+// ================================
+// AUTH
+// ================================
+
+async function signUp(email, password, name) {
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        name: name
+      }
+    }
+  });
+
+  if (error) {
+    console.error("Sign up error:", error);
+    alert(error.message);
+    return;
+  }
+
+  console.log("Account created:", data);
+  alert("Account created! Check your email if confirmation is required.");
+}
+
+async function signIn(email, password) {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    console.error("Login error:", error);
+    alert(error.message);
+    return;
+  }
+
+  console.log("Logged in:", data.user);
+}
