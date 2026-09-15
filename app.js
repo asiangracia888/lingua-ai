@@ -236,3 +236,70 @@ async function signIn(email, password) {
 
   console.log("Logged in:", data.user);
 }
+// ================================
+
+// AUTH UI
+
+// ================================
+
+const authScreen = document.getElementById("auth-screen");
+
+const authName = document.getElementById("auth-name");
+
+const authEmail = document.getElementById("auth-email");
+
+const authPassword = document.getElementById("auth-password");
+
+const signupBtn = document.getElementById("signup-btn");
+
+const loginBtn = document.getElementById("login-btn");
+
+const authMessage = document.getElementById("auth-message");
+
+signupBtn.addEventListener("click", async () => {
+
+  const name = authName.value.trim();
+
+  const email = authEmail.value.trim();
+
+  const password = authPassword.value;
+
+  if (!name || !email || !password) {
+
+    authMessage.textContent = "Please fill in all fields.";
+
+    return;
+
+  }
+
+  authMessage.textContent = "Creating account...";
+
+  await signUp(email, password, name);
+
+});
+
+loginBtn.addEventListener("click", async () => {
+
+  const email = authEmail.value.trim();
+
+  const password = authPassword.value;
+
+  if (!email || !password) {
+
+    authMessage.textContent = "Enter your email and password.";
+
+    return;
+
+  }
+
+  authMessage.textContent = "Signing in...";
+
+  await signIn(email, password);
+
+  const { data } = await supabaseClient.auth.getUser();
+
+  if (data.user) {
+
+    authScreen.style.display = "none";
+    }
+});
