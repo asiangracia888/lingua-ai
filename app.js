@@ -187,3 +187,49 @@ if (SpeechRecognition && mic) {
     );
   });
 }
+// ---------- Page Navigation ----------
+
+function showPage(pageName) {
+  pages.forEach((page) => {
+    page.classList.toggle("active-page", page.id === pageName);
+  });
+
+  navItems.forEach((nav) => {
+    nav.classList.toggle(
+      "active",
+      nav.dataset.page === pageName
+    );
+  });
+}
+
+
+// ---------- Practice Scenarios ----------
+
+function startScenario(scenario) {
+  showPage("practice");
+
+  const scenarioTitle = document.getElementById("scenario-title");
+
+  if (scenarioTitle) {
+    scenarioTitle.textContent = scenario;
+  }
+
+  const aiMessage = document.getElementById("ai-message");
+
+  if (aiMessage) {
+    const messages = {
+      "Casual conversation":
+        "Hey! 👋 How was your day? Tell me something interesting that happened today.",
+
+      "Job interview":
+        "Welcome! 💼 Let's practice a job interview. Tell me a little about yourself.",
+
+      "Travel":
+        "Let's practice travel English! ✈️ Imagine you're checking into a hotel. What would you say?"
+    };
+
+    aiMessage.textContent =
+      messages[scenario] ||
+      "Let's practice English together! Tell me something about yourself.";
+  }
+}
