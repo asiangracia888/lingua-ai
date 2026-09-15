@@ -23,27 +23,26 @@ function startScenario(scenario) {
   const title = document.getElementById("scenario-title");
   const aiMessage = document.getElementById("ai-message");
 
-  if (title) {
-    title.textContent = scenario;
-  }
+  const messages = {
+    "Casual conversation":
+      "Hey! 👋 How was your day? Tell me something interesting that happened today.",
+    "Job interview":
+      "Welcome! Let's practice a job interview. Tell me about yourself.",
+    "Travel":
+      "Let's practice travel English! ✈️ Imagine you're checking into a hotel. What would you say?"
+  };
 
+  if (title) title.textContent = scenario;
   if (aiMessage) {
-    const messages = {
-      "Casual conversation":
-        "Hey! 👋 How was your day? Tell me something interesting that happened today.",
-
-      "Job interview":
-        "Welcome! Let's practice a job interview. Tell me about yourself.",
-
-      "Travel":
-        "Let's practice travel English! ✈️ Imagine you're checking into a hotel. What would you say?"
-    };
-
     aiMessage.textContent =
-      messages[scenario] ||
-      "Hey! 👋 Let's practice English together.";
+      messages[scenario] || "Hey! 👋 Let's practice English together.";
   }
 }
+
+
+// ================================
+// AI CHAT
+// ================================
 
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("sendBtn");
@@ -103,6 +102,7 @@ async function sendMessage() {
       feedback.hidden = false;
       feedback.textContent = "Nice! Keep practicing your English.";
     }
+
   } catch (error) {
     console.error(error);
 
@@ -143,7 +143,10 @@ if (input) {
 }
 
 
-// Voice input
+// ================================
+// VOICE INPUT
+// ================================
+
 const micBtn = document.getElementById("micBtn");
 const voiceStatus = document.getElementById("voiceStatus");
 
@@ -185,6 +188,7 @@ if (micBtn && SpeechRecognition) {
         "Voice mode uses your browser's speech recognition when available.";
     }
   };
+
 } else if (micBtn) {
   micBtn.addEventListener("click", () => {
     if (voiceStatus) {
@@ -195,120 +199,140 @@ if (micBtn && SpeechRecognition) {
 }
 
 
-// Start on Dashboard
-showPage("dashboard");
 // ================================
 // AUTH
 // ================================
 
+const authScreen = document.getElementById("auth-screen");
+const authName = document.getElementById("auth-name");
+const authEmail = document.getElementById("auth-email");
+const authPassword = document.getElementById("auth-password");
+const signupBtn = document.getElementById("signup-btn");
+const loginBtn = document.getElementById("login-btn");
+const authMessage = document.getElementById("auth-message");
+
+function showApp() {
+  if (authScreen) {
+    authScreen.style.display = "none";
+  }
+
+  showPage("dashboard");
+}
+
 async function signUp(email, password, name) {
   const { data, error } = await supabaseClient.auth.signUp({
-    email: email,
-    password: password,
+    email,
+    password,
     options: {
       data: {
-        name: name
+        name
       }
     }
   });
 
   if (error) {
     console.error("Sign up error:", error);
-    alert(error.message);
+    authMessage.textContent = error.message;
     return;
   }
 
-  console.log("Account created:", data);
-  alert("Account created! Check your email if confirmation is required.");
+  if (data.user) {
+    authMessage.textContent = "Account created successfully!";
+
+    // Если подтверждение email отключено
+    if (data.session) {
+      showApp();
+      await loadUser();
+    } else {
+      authMessage.textContent =
+        "Account created! Check your email to confirm your account.";
+    }
+  }
 }
 
 async function signIn(email, password) {
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
 
   if (error) {
     console.error("Login error:", error);
-    alert(error.message);
+    authMessage.textContent = error.message;
     return;
   }
-
-  console.log("Logged in:", data.user);
-}
-// ================================
-
-// AUTH UI
-
-// ================================
-
-const authScreen = document.getElementById("auth-screen");
-
-const authName = document.getElementById("auth-name");
-
-const authEmail = document.getElementById("auth-email");
-
-const authPassword = document.getElementById("auth-password");
-
-const signupBtn = document.getElementById("signup-btn");
-
-const loginBtn = document.getElementById("login-btn");
-
-const authMessage = document.getElementById("auth-message");
-
-signupBtn.addEventListener("click", async () => {
-
-  const name = authName.value.trim();
-
-  const email = authEmail.value.trim();
-
-  const password = authPassword.value;
-
-  if (!name || !email || !password) {
-
-    authMessage.textContent = "Please fill in all fields.";
-
-    return;
-
-  }
-
-  authMessage.textContent = "Creating account...";
-
-  await signUp(email, password, name);
-
-});
-
-loginBtn.addEventListener("click", async () => {
-
-  const email = authEmail.value.trim();
-
-  const password = authPassword.value;
-
-  if (!email || !password) {
-
-    authMessage.textContent = "Enter your email and password.";
-
-    return;
-
-  }
-
-  authMessage.textContent = "Signing in...";
-
-  await signIn(email, password);
-
-  const { data } = await supabaseClient.auth.getUser();
 
   if (data.user) {
+    showApp();
+    await loadUser();
+  }
+}
 
-    authScreen.style.display = "none";
+
+// ================================
+// SIGN UP BUTTON
+// ================================
+
+if (signupBtn) {
+  signupBtn.addEventListener("click", async () => {
+    const name = authName.value.trim();
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+
+    if (!name || !email || !password) {
+      authMessage.textContent = "Please fill in all fields.";
+      return;
     }
-});
+
+    if (password.length < 6) {
+      authMessage.textContent =
+        "Password must be at least 6 characters.";
+      return;
+    }
+
+    authMessage.textContent = "Creating account...";
+    signupBtn.disabled = true;
+
+    await signUp(email, password, name);
+
+    signupBtn.disabled = false;
+  });
+}
+
+
 // ================================
-// RESTORE USER SESSION + NAME
+// LOGIN BUTTON
+// ================================
+
+if (loginBtn) {
+  loginBtn.addEventListener("click", async () => {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+
+    if (!email || !password) {
+      authMessage.textContent =
+        "Enter your email and password.";
+      return;
+    }
+
+    authMessage.textContent = "Signing in...";
+    loginBtn.disabled = true;
+
+    await signIn(email, password);
+
+    loginBtn.disabled = false;
+  });
+}
+
+
+// ================================
+// RESTORE USER SESSION
 // ================================
 
 async function loadUser() {
-  const { data, error } = await supabaseClient.auth.getUser();
+  const { data, error } =
+    await supabaseClient.auth.getUser();
 
   if (error || !data.user) {
     return;
@@ -317,87 +341,28 @@ async function loadUser() {
   const user = data.user;
   const name = user.user_metadata?.name || "Learner";
 
-  // Меняем имя в главном заголовке
-  const nameElement = document.querySelector(".hero h1 span");
-
-  if (nameElement) {
-    nameElement.textContent = name + ".";
-  }
-
-  // Меняем имя в профиле
-  const profileName = document.querySelector(".profile-mini strong");
+  const profileName =
+    document.querySelector(".profile-mini strong");
 
   if (profileName) {
     profileName.textContent = name;
   }
 
-  // Меняем букву аватара
-  const avatar = document.querySelector(".profile-mini .avatar");
+  const avatar =
+    document.querySelector(".profile-mini .avatar");
 
   if (avatar) {
-    avatar.textContent = name.charAt(0).toUpperCase();
+    avatar.textContent =
+      name.charAt(0).toUpperCase();
   }
 
-  // Скрываем регистрацию, если пользователь уже вошёл
   if (authScreen) {
     authScreen.style.display = "none";
   }
+
+  showPage("dashboard");
 }
-// ================================
 
-// RESTORE USER SESSION + NAME
 
-// ================================
-
-async function loadUser() {
-
-  const { data, error } = await supabaseClient.auth.getUser();
-
-  if (error || !data.user) {
-
-    return;
-
-  }
-
-  const user = data.user;
-
-  const name = user.user_metadata?.name || "Learner";
-
-  // Меняем имя в главном заголовке
-
-  const nameElement = document.querySelector(".hero h1 span");
-
-  if (nameElement) {
-
-    nameElement.textContent = name + ".";
-
-  }
-
-  // Меняем имя в профиле
-
-  const profileName = document.querySelector(".profile-mini strong");
-
-  if (profileName) {
-
-    profileName.textContent = name;
-
-  }
-
-  // Меняем букву аватара
-
-  const avatar = document.querySelector(".profile-mini .avatar");
-
-  if (avatar) {
-
-    avatar.textContent = name.charAt(0).toUpperCase();
-
-  }
-
-  // Скрываем регистрацию, если пользователь уже вошёл
-
-  if (authScreen) {
-
-    authScreen.style.display = "none";
-  }
-}
+// Check existing session when page opens
 loadUser();
